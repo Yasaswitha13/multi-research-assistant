@@ -1,0 +1,44 @@
+# Render Blueprint (render.com) — deploys the backend + frontend from this repo.
+# Free tier, no credit card. After pushing this repo to GitHub:
+#   Render dashboard → New → Blueprint → paste the GitHub repo URL.
+# Env vars marked "sync: false" are prompted for at deploy time —
+# no secrets live in this file.
+
+services:
+  - type: web
+    name: research-assistant-backend
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_MODEL
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: FRONTEND_ORIGIN
+        value: https://research-assistant-frontend.onrender.com
+
+  - type: web
+    name: research-assistant-frontend
+    runtime: node
+    plan: free
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: NEXT_PUBLIC_API_URL
+        value: https://research-assistant-backend.onrender.com
